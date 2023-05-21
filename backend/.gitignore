@@ -1,0 +1,21 @@
+# Flask Backend
+__pycache__/
+env/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE/Editor specific
+.idea/
+.vscode/
+*.swp
+*~
+
+# Logs
+logs/
+*.log
+
+# Dependency directories
+lib/
+bin/
+include/
