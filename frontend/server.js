@@ -13,11 +13,20 @@ var options = {
 app.use(bodyParser.raw(options));
 app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/api/hr", function (req, res) {
-  const data = [];
-  res.status(200).json(data);
+var maze = [];
+
+app.post("/updatemaze", function (req, res) {
+  const payload = JSON.parse(req.body);
+  maze = payload.maze
+  res.status(200).json({
+    status: "success",
+  });
 });
 
+app.get("/displaymaze", function (req, res) {
+  console.log(maze);
+  res.status(200).json(maze);
+});
 
 // Server application
 app.get("/*", function (req, res) {
