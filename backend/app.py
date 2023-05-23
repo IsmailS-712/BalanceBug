@@ -16,6 +16,12 @@ app = Flask(__name__)
 #     "maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", "S", " ", " ", " ", " ", "#"], ["#", " ", "#", "#", "#", " ", "#"], ["#", " ", " ", " ", "#", " ", "#"], ["#", "#", "#", "#", "#", " ", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]]
 # }
 
+class Graph:
+    def __innit__(self):
+        self.adjacency_list = {}
+
+def map_maze()
+
 def find_shortest_path(maze):
     start_pos = None
     end_pos = None
