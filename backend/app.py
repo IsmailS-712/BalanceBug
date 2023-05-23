@@ -16,34 +16,31 @@ app = Flask(__name__)
 #     "maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", "S", " ", " ", " ", " ", "#"], ["#", " ", "#", "#", "#", " ", "#"], ["#", " ", " ", " ", "#", " ", "#"], ["#", "#", "#", "#", "#", " ", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]]
 # }
 
-class Graph:
-    def __init__(self):
-        self.adjacency_list = {}
+# class Graph:
+#     def __init__(self):
+#         self.adjacency_list = {}
     
-    def add_node(self, node):
-        if node not in self.adjacency_list:
-            self.adjacency_list[node] = []
+#     def add_node(self, node):
+#         if node not in self.adjacency_list:
+#             self.adjacency_list[node] = []
     
-    def add_edge(self, node1, node2):
-        if node1 in self.adjacency_list and node2 in self.adjacency_list:
-            self.adjacency_list[node1].append(node2)
+#     def add_edge(self, node1, node2):
+#         if node1 in self.adjacency_list and node2 in self.adjacency_list:
+#             self.adjacency_list[node1].append(node2)
     
-    def get_neighbors(self, node):
-        if node in self.adjacency_list:
-            return self.adjacency_list[node]
-        else:
-            return []
+#     def get_neighbors(self, node):
+#         if node in self.adjacency_list:
+#             return self.adjacency_list[node]
+#         else:
+#             return []
 
 
-def map_maze():
-    map = Graph()
-    map.add_node()
+# def map_maze():
+#     map = Graph()
+#     map.add_node()
     
 
-    while(junction == True):
-
-    
-    
+#     while(junction == True):
 
 def find_shortest_path(maze):
     start_pos = None
