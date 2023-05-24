@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify
+import requests
+import time
 
 app = Flask(__name__)
 
@@ -85,6 +87,21 @@ def shortest_path():
         return jsonify({'path': path})
     else:
         return jsonify({'error': 'No path found'})
+
+@app.route('/test_render', methods=['POST'])
+def test_render():
+    try:
+        requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", "S", "P", "P", "P", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]]})
+        time.sleep(1)
+        requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", " ", "S", "P", "P", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]]})
+        time.sleep(1)
+        requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", " ", " ", "S", "P", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]]})
+        time.sleep(1)
+        requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", " ", " ", " ", "S", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]]})
+        time.sleep(1)
+        return jsonify({'status': 'successfully posted to endpoint'})
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)

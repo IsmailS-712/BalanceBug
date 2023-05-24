@@ -27,24 +27,27 @@ app.post("/updatemaze", function (req, res) {
     ssl: { rejectUnauthorized: false },
   });
 
-  client
-    .connect()
-    .then(() => {
-      const query = "INSERT INTO maze_run (layout, timestamp) VALUES ($1, $2)";
-      const values = [maze, currentTimestamp];
+  //   client
+  //     .connect()
+  //     .then(() => {
+  //       const query = "INSERT INTO maze_run (layout, timestamp) VALUES ($1, $2)";
+  //       const values = [maze, currentTimestamp];
 
-      return client.query(query, values);
-    })
-    .then(() => {
-      res.status(200).json({
-        status: "successfully updated maze and database",
-      });
-    })
-    .catch((error) => {
-      console.error("Error inserting row:", error);
-      res.status(500).send(error.message);
-    });
-  client.end();
+  //       return client.query(query, values);
+  //     })
+  //     .then(() => {
+  //       res.status(200).json({
+  //         status: "successfully updated maze and database",
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error inserting row:", error);
+  //       res.status(500).send(error.message);
+  //     });
+  //   client.end();
+  res.status(200).json({
+    status: "successfully updated maze and database",
+  });
 });
 
 app.get("/displaymaze", function (req, res) {
