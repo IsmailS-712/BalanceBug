@@ -2,11 +2,19 @@ import React, { useState, useEffect } from "react";
 
 export function HomePage() {
   const [payloadData, setPayloadData] = useState<any>(null);
+  const [lastTime, setLastTime] = useState(new Date());
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
   useEffect(() => {
     const intervalId = setInterval(() => {
+      setCurrentDateTime(new Date());
       fetch("/displaymaze")
         .then((response) => response.json())
-        .then((payloadData) => setPayloadData(payloadData))
+        .then((data) => {
+          const { maze, time } = data;
+          setPayloadData(maze);
+          setLastTime(time);
+        })
         .catch((err) => console.log(err));
     }, 1000);
     return () => clearInterval(intervalId);
@@ -44,22 +52,26 @@ export function HomePage() {
       <div className="flex flex-col md:w-[32rem] text-3xl md:text-4xl font-bold text-center mt-16 mb-7">
         Balance Bug Homepage
       </div>
-      {payloadData && (
-        <div className="mt-4">
-          {/* Need to make this dynamically scale */}
-          <div className={`grid grid-cols-7`}>
-            {payloadData.map((row: any[], rowIndex: any) =>
-              row.map((cell, colIndex) => (
-                <div
-                  key={`${rowIndex}-${colIndex}`}
-                  style={getCellStyle(cell)}
-                >
-                  {cell}
-                </div>
-              ))
-            )}
+      <h1>Current Date and Time: {currentDateTime.toLocaleString()}</h1>
+      {lastTime && payloadData && (
+        <>
+          <div>Last Updated Time: {new Date(lastTime).toLocaleString()}</div>
+          <div className="mt-4">
+            {/* Need to make this dynamically scale */}
+            <div className={`grid grid-cols-7`}>
+              {payloadData.map((row: any[], rowIndex: any) =>
+                row.map((cell, colIndex) => (
+                  <div
+                    key={`${rowIndex}-${colIndex}`}
+                    style={getCellStyle(cell)}
+                  >
+                    {cell}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );

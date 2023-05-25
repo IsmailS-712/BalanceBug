@@ -16,11 +16,11 @@ app.use(express.static(path.join(__dirname, "build")));
 const { Client } = require("pg");
 
 var maze = [];
-const currentTimestamp = new Date().toISOString();
 
 app.post("/updatemaze", function (req, res) {
   const payload = JSON.parse(req.body);
   maze = payload.maze;
+  timestamp = payload.timestamp;
 
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -51,7 +51,10 @@ app.post("/updatemaze", function (req, res) {
 });
 
 app.get("/displaymaze", function (req, res) {
-  res.status(200).json(maze);
+  res.status(200).json({
+    maze: maze,
+    time: timestamp,
+  });
 });
 
 // Server application
