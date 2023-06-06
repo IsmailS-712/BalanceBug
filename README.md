@@ -1,6 +1,6 @@
 # balance-bug
 
-React frontend, flask backend
+React frontend, Flask backend
 
 To run frontend:
 
