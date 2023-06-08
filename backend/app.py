@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import requests
 import time
+import random
 
 app = Flask(__name__)
 
@@ -52,14 +53,46 @@ def shortest_path():
 @app.route('/test_render', methods=['POST'])
 def test_render():
     try:
-        requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", "S", "P", "P", "P", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]], "timestamp": "2011-08-12T20:17:46.384Z"})
-        time.sleep(1)
-        requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", " ", "S", "P", "P", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]], "timestamp": "2011-08-12T20:17:47.384Z"})
-        time.sleep(1)
-        requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", " ", " ", "S", "P", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]], "timestamp": "2011-08-12T20:17:48.384Z"})
-        time.sleep(1)
-        requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", " ", " ", " ", "S", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]], "timestamp": "2011-08-12T20:17:49.384Z"})
-        time.sleep(1)
+        # requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", "S", "P", "P", "P", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]], "timestamp": "2011-08-12T20:17:46.384Z"})
+        # time.sleep(1)
+        # requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", " ", "S", "P", "P", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]], "timestamp": "2011-08-12T20:17:47.384Z"})
+        # time.sleep(1)
+        # requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", " ", " ", "S", "P", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]], "timestamp": "2011-08-12T20:17:48.384Z"})
+        # time.sleep(1)
+        # requests.post("http://localhost:3000/updatemaze", json={"maze": [["#", "#", "#", "#", "#", "#", "#"], ["#", " ", " ", " ", "S", "P", "#"], ["#", " ", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", "#", "P", "#"], ["#", "#", "#", "#", "#", "P", "#"], ["#", " ", " ", " ", " ", "E", "#"], ["#", "#", "#", "#", "#", "#", "#"]], "timestamp": "2011-08-12T20:17:49.384Z"})
+        # time.sleep(1)
+        for int in range (0,5):
+            maze = []
+            for i in range(150):
+                row = []
+                for j in range(200):
+                    random_value = random.randint(0, 99)
+                    row.append(random_value)
+                maze.append(row)
+            discovery = []
+            for i in range(150):
+                row = []
+                for j in range(200):
+                    random_value = random.randint(0, 99)
+                    row.append(random_value)
+                discovery.append(row)
+            payload = {"maze": maze, "discovery": discovery, "timestamp": "2011-08-12T20:17:49.384Z"}
+            requests.post("http://localhost:3000/updatemaze", json=payload)
+            time.sleep(1)
+        maze = []
+        for i in range(150):
+            row = []
+            for j in range(200):
+                row.append(0)
+            maze.append(row)
+        discovery = []
+        for i in range(150):
+            row = []
+            for j in range(200):
+                row.append(0)
+            discovery.append(row)
+        payload = {"maze": maze, "discovery": discovery, "timestamp": "2011-08-12T20:17:49.384Z"}
+        requests.post("http://localhost:3000/updatemaze", json=payload)
         return jsonify({'status': 'successfully posted to endpoint'})
     except Exception as e:
         return jsonify({'error': str(e)})

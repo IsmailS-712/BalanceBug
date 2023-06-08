@@ -15,29 +15,31 @@ app.use(express.static(path.join(__dirname, "build")));
 
 const { Client } = require("pg");
 
-// var maze = [];
-var timestamp = "test";
+var maze = [];
+var discovery = [];
+var timestamp;
 
-function fillMaze() {
-  const maze = [];
+// function fillMaze() {
+//   const maze = [];
 
-  for (let i = 0; i < 150; i++) {
-    const row = [];
-    for (let j = 0; j < 200; j++) {
-      const randomValue = Math.floor(Math.random() * 100); // Generate random number between 0 and 99
-      row.push(randomValue);
-    }
-    maze.push(row);
-  }
+//   for (let i = 0; i < 150; i++) {
+//     const row = [];
+//     for (let j = 0; j < 200; j++) {
+//       const randomValue = Math.floor(Math.random() * 100); // Generate random number between 0 and 99
+//       row.push(randomValue);
+//     }
+//     maze.push(row);
+//   }
 
-  return maze;
-}
+//   return maze;
+// }
 
-const maze = fillMaze();
+// const maze = fillMaze();
 
 app.post("/updatemaze", function (req, res) {
   const payload = JSON.parse(req.body);
   maze = payload.maze;
+  discovery = payload.discovery
   timestamp = payload.timestamp;
 
   const client = new Client({
@@ -71,7 +73,7 @@ app.post("/updatemaze", function (req, res) {
 app.get("/displaymaze", function (req, res) {
   res.status(200).json({
     maze: maze,
-    discovery: maze,
+    discovery: discovery,
     time: timestamp,
   });
 });
