@@ -1,51 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { DiscoveryMap } from "../components/discoverymap";
+import { MazeMap } from "../components/mazemap";
 
 export function HomePage() {
-  const [payloadData, setPayloadData] = useState<any>(null);
+  const [mazemap, setMaze] = useState<any>(null);
+  const [discoverymap, setDiscovery] = useState<any>(null);
   const [lastTime, setLastTime] = useState(new Date());
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
+  const fetchData = useCallback(() => {
+    fetch("/displaymaze")
+      .then((response) => response.json())
+      .then((data) => {
+        const { maze, discovery, time } = data;
+        if (
+          JSON.stringify(maze) !== JSON.stringify(mazemap) ||
+          JSON.stringify(discovery) !== JSON.stringify(discoverymap)
+        ) {
+          setMaze(maze);
+          setDiscovery(discovery);
+          setLastTime(time);
+        }
+      })
+      .catch((error) => {
+        console.log("Error fetching data:", error);
+      });
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentDateTime(new Date());
-      fetch("/displaymaze")
-        .then((response) => response.json())
-        .then((data) => {
-          const { maze, time } = data;
-          setPayloadData(maze);
-          setLastTime(time);
-        })
-        .catch((err) => console.log(err));
+      fetchData();
     }, 1000);
     return () => clearInterval(intervalId);
-  }, []);
-
-  const getCellStyle = (cellValue: any) => {
-    let backgroundColor = "#ffffff";
-    let color = "#000000";
-
-    switch (cellValue) {
-      case "#":
-        backgroundColor = "#000000";
-        break;
-      case "S":
-        backgroundColor = "#FFA500";
-        break;
-      case "E":
-        backgroundColor = "#ff0000";
-        break;
-      case "P":
-        backgroundColor = "#00FF00";
-        break;
-      default:
-        break;
-    }
-
-    return {
-      backgroundColor,
-      color,
-    };
-  };
+  }, [fetchData]);
 
   return (
     <>
@@ -53,25 +41,22 @@ export function HomePage() {
         Balance Bug Homepage
       </div>
       <h1>Current Date and Time: {currentDateTime.toLocaleString()}</h1>
-      {lastTime && payloadData && (
+      {lastTime && mazemap && discoverymap ? (
         <>
           <div>Last Updated Time: {new Date(lastTime).toLocaleString()}</div>
-          <div className="mt-4">
-            {/* Need to make this dynamically scale */}
-            <div className={`grid grid-cols-7`}>
-              {payloadData.map((row: any[], rowIndex: any) =>
-                row.map((cell, colIndex) => (
-                  <div
-                    key={`${rowIndex}-${colIndex}`}
-                    style={getCellStyle(cell)}
-                  >
-                    {cell}
-                  </div>
-                ))
-              )}
+          <div className="flex flex-row mt-4 w-full">
+            <div className="flex flex-col w-full items-center">
+              <div className="text-lg font-bold">Maze Mapping</div>
+              <MazeMap arrays={mazemap} />
+            </div>
+            <div className="flex flex-col w-full items-center">
+              <div className="text-lg font-bold">Discovery Progress</div>
+              <DiscoveryMap arrays={discoverymap} />
             </div>
           </div>
         </>
+      ) : (
+        <h1>No Update</h1>
       )}
     </>
   );

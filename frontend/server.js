@@ -15,7 +15,25 @@ app.use(express.static(path.join(__dirname, "build")));
 
 const { Client } = require("pg");
 
-var maze = [];
+// var maze = [];
+var timestamp = "test";
+
+function fillMaze() {
+  const maze = [];
+
+  for (let i = 0; i < 150; i++) {
+    const row = [];
+    for (let j = 0; j < 200; j++) {
+      const randomValue = Math.floor(Math.random() * 100); // Generate random number between 0 and 99
+      row.push(randomValue);
+    }
+    maze.push(row);
+  }
+
+  return maze;
+}
+
+const maze = fillMaze();
 
 app.post("/updatemaze", function (req, res) {
   const payload = JSON.parse(req.body);
@@ -53,6 +71,7 @@ app.post("/updatemaze", function (req, res) {
 app.get("/displaymaze", function (req, res) {
   res.status(200).json({
     maze: maze,
+    discovery: maze,
     time: timestamp,
   });
 });
