@@ -63,32 +63,32 @@ def test_render():
         # time.sleep(1)
         for int in range (0,5):
             maze = []
-            for i in range(150):
+            for i in range(240):
                 row = []
-                for j in range(200):
+                for j in range(360):
                     random_value = random.randint(0, 99)
                     row.append(random_value)
                 maze.append(row)
             discovery = []
-            for i in range(150):
+            for i in range(240):
                 row = []
-                for j in range(200):
+                for j in range(360):
                     random_value = random.randint(0, 99)
                     row.append(random_value)
                 discovery.append(row)
             payload = {"maze": maze, "discovery": discovery, "timestamp": "2011-08-12T20:17:49.384Z"}
-            requests.post("http://localhost:3000/updatemaze", json=payload)
+            requests.post("https://balance-bug.5959pn4l16bde.eu-west-2.cs.amazonlightsail.com/updatemaze", json=payload)
             time.sleep(1)
         maze = []
-        for i in range(150):
+        for i in range(240):
             row = []
-            for j in range(200):
+            for j in range(360):
                 row.append(0)
             maze.append(row)
         discovery = []
-        for i in range(150):
+        for i in range(240):
             row = []
-            for j in range(200):
+            for j in range(360):
                 row.append(0)
             discovery.append(row)
         payload = {"maze": maze, "discovery": discovery, "timestamp": "2011-08-12T20:17:49.384Z"}

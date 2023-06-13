@@ -22,9 +22,9 @@ var timestamp;
 // function fillMaze() {
 //   const maze = [];
 
-//   for (let i = 0; i < 150; i++) {
+//   for (let i = 0; i < 240; i++) {
 //     const row = [];
-//     for (let j = 0; j < 200; j++) {
+//     for (let j = 0; j < 360; j++) {
 //       const randomValue = Math.floor(Math.random() * 100); // Generate random number between 0 and 99
 //       row.push(randomValue);
 //     }
