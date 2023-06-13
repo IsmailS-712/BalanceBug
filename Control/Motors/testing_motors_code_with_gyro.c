@@ -15,6 +15,9 @@ const int stepsPerRevolution = 50;
 
 bool mpu_begin = false;
 
+float accelXAvg = 0.0, accelYAvg = 0.0, accelZAvg = 0.0;
+float gyroXAvg = 0.0, gyroYAvg = 0.0, gyroZAvg = 0.0;
+
 void setup(void) {
   Serial.begin(115200);
 
@@ -38,6 +41,8 @@ void setup(void) {
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+
+  calibrateSensors();
 }
 
 void loop() {
@@ -46,15 +51,23 @@ void loop() {
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
-  Serial.print("x:");
-  Serial.print(g.gyro.x);
-  Serial.print(",");
-  Serial.print("y:");
-  Serial.print(g.gyro.y);
-  Serial.print(",");
-  Serial.print("z:");
-  Serial.print(g.gyro.z);
-  Serial.println("");
+  Serial.print("Gyroscope: ");
+  Serial.print("x: ");
+  Serial.print(g.gyro.x - gyroXAvg);
+  Serial.print(", y: ");
+  Serial.print(g.gyro.y - gyroYAvg);
+  Serial.print(", z: ");
+  Serial.println(g.gyro.z- gyroZAvg);
+
+  Serial.print("Accelerometer: ");
+  Serial.print("x: ");
+  Serial.print(a.acceleration.x - accelXAvg);
+  Serial.print(", y: ");
+  Serial.print(a.acceleration.y - accelYAvg);
+  Serial.print(", z: ");
+  Serial.println(a.acceleration.z - accelZAvg);
+
+  delay(500);
 
    // Set motor direction clockwise
   digitalWrite(dirPin_r, HIGH);
@@ -85,5 +98,48 @@ void loop() {
       delayMicroseconds(2500);
     }
   }
+}
 
+void calibrateSensors() {
+  Serial.println("Starting sensor calibration...");
+  delay(200);
+
+  Serial.println("Collecting calibration data...");
+  const int numSamples = 100;
+
+  for (int i = 0; i < numSamples; i++) {
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
+
+    accelXAvg += a.acceleration.x;
+    accelYAvg += a.acceleration.y;
+    accelZAvg += a.acceleration.z;
+    gyroXAvg += g.gyro.x;
+    gyroYAvg += g.gyro.y;
+    gyroZAvg += g.gyro.z;
+    delay(10);
+  }
+
+  accelXAvg /= numSamples;
+  accelYAvg /= numSamples;
+  accelZAvg /= numSamples;
+  gyroXAvg /= numSamples;
+  gyroYAvg /= numSamples;
+  gyroZAvg /= numSamples;
+
+  Serial.println("Calibration complete!");
+  Serial.print("Accelerometer Averages: ");
+  Serial.print("x: ");
+  Serial.print(accelXAvg);
+  Serial.print(", y: ");
+  Serial.print(accelYAvg);
+  Serial.print(", z: ");
+  Serial.println(accelZAvg);
+  Serial.print("Gyroscope Averages: ");
+  Serial.print("x: ");
+  Serial.print(gyroXAvg);
+  Serial.print(", y: ");
+  Serial.print(gyroYAvg);
+  Serial.print(", z: ");
+  Serial.println(gyroZAvg);
 }
