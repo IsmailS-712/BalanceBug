@@ -9,7 +9,7 @@ export function HomePage() {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   const fetchData = useCallback(() => {
-    fetch("/displaymaze")
+    fetch("/api/displaymaze")
       .then((response) => response.json())
       .then((data) => {
         const { maze, discovery, time } = data;

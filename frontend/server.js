@@ -14,38 +14,58 @@ app.use(bodyParser.raw(options));
 app.use(express.static(path.join(__dirname, "build")));
 
 const { Client } = require("pg");
+const { randomgen, reset } = require("./backend/generation");
+const pathing = require("./backend/pathing");
 
 var maze = [];
 var discovery = [];
 var timestamp;
 
-// function fillMaze() {
-//   const maze = [];
+app.get("/api/pathing", function (req, res) {
+  try {
+    const data = JSON.parse(req.body);
+    var xpos = data.xpos;
+    var ypos = data.discovery;
+    var orientation = data.orientation;
 
-//   for (let i = 0; i < 240; i++) {
-//     const row = [];
-//     for (let j = 0; j < 360; j++) {
-//       const randomValue = Math.floor(Math.random() * 100); // Generate random number between 0 and 99
-//       row.push(randomValue);
-//     }
-//     maze.push(row);
-//   }
+    const payload = pathing(xpos, ypos, orientation, discovery);
 
-//   return maze;
-// }
+    res.status(200).json(payload);
+  } catch (error) {
+    const errorType = error.constructor.name;
+    res.status(500).json({ error: errorType });
+  }
+});
 
-// const maze = fillMaze();
+app.post("/api/mockupdate", function (req, res) {
+  try {
+    randomgen();
+    res.status(200).json({
+      status: "successfully mock updated maze",
+    });
+  } catch (error) {
+    const errorType = error.constructor.name;
+    res.status(500).json({ error: errorType });
+  }
+});
 
-app.post("/updatemaze", function (req, res) {
-  const payload = JSON.parse(req.body);
-  maze = payload.maze;
-  discovery = payload.discovery
-  timestamp = payload.timestamp;
+app.post("/api/reset", function (req, res) {
+  try {
+    reset();
+    res.status(200).json({
+      status: "successfully reset",
+    });
+  } catch (error) {
+    const errorType = error.constructor.name;
+    res.status(500).json({ error: errorType });
+  }
+});
 
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-  });
+app.post("/api/updatemaze", function (req, res) {
+  // const client = new Client({
+  //   connectionString: process.env.DATABASE_URL,
+  //   ssl: { rejectUnauthorized: false },
+  // });
 
   //   client
   //     .connect()
@@ -65,12 +85,25 @@ app.post("/updatemaze", function (req, res) {
   //       res.status(500).send(error.message);
   //     });
   //   client.end();
-  res.status(200).json({
-    status: "successfully updated maze and database",
-  });
+
+  // console.log(maze);
+  // console.log(discovery);
+  // console.log(timestamp);
+  try {
+    const payload = JSON.parse(req.body);
+    maze = payload.maze;
+    discovery = payload.discovery;
+    timestamp = payload.timestamp;
+    res.status(200).json({
+      status: "successfully updated maze and database",
+    });
+  } catch (error) {
+    const errorType = error.constructor.name;
+    res.status(500).json({ error: errorType });
+  }
 });
 
-app.get("/displaymaze", function (req, res) {
+app.get("/api/displaymaze", function (req, res) {
   res.status(200).json({
     maze: maze,
     discovery: discovery,
