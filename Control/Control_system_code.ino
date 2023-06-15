@@ -19,6 +19,7 @@ volatile bool loopTrigger = false;
 
 void IRAM_ATTR interruptHandler() {
   // add the code to control the motors here
+  digitalWrite(testpin, !digitalRead(testpin));
   stepper1.runSpeed();
   stepper2.runSpeed();
 }
