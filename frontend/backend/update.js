@@ -10,6 +10,8 @@ const fetch = require("node-fetch");
 // 0 - 100 Amount of discovery
 
 function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
+  cleanse(maze);
+
   const width = 23;
   const height = 11;
   const offset = 2;
@@ -77,6 +79,16 @@ function fill(maze) {
         maze[i][j + 1] === maze[i - 1][j]
       ) {
         maze[i][j] = maze[i - 1][j];
+      }
+    }
+  }
+}
+
+function cleanse(maze) {
+  for (let i = 0; i < 240; i++) {
+    for (let j = 0; j < 360; j++) {
+      if (maze[i][j] === 200 || maze[i][j] === 300) {
+        maze[i][j] = 0;
       }
     }
   }
