@@ -1,5 +1,5 @@
-import React from 'react';
-import ImageRenderer from './imagerenderer';
+import React from "react";
+import ImageRenderer from "./imagerenderer";
 
 interface MazeMapProps {
   arrays: number[][];
@@ -14,14 +14,12 @@ export function MazeMap({ arrays }: MazeMapProps) {
 
     const normalizedNum = (num - min) / (max - min);
     const shade = Math.round(255 - normalizedNum * 255);
-    const color = shade.toString(16).padStart(2, '0');
+    const color = shade.toString(16).padStart(2, "0");
 
     return `#${color}${color}${color}`;
   }
 
-  const pixels = arrays.map((arr) =>
-    arr.map((num) => calculateColor(num))
-  );
+  const pixels = arrays.map((arr) => arr.map((num) => calculateColor(num)));
 
   return (
     <div className="flex flex-col mt-5">

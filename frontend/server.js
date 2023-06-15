@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, "build")));
 const { Client } = require("pg");
 const { randomgen, reset } = require("./backend/generation");
 const pathing = require("./backend/pathing");
-const parseInput = require("./backend/update")
+const parseInput = require("./backend/update");
 
 var maze = [];
 var discovery = [];

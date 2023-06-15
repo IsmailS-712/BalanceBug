@@ -5,25 +5,28 @@ import { MazeMap } from "../components/mazemap";
 class ResetButton extends React.Component {
   handleClick = async () => {
     try {
-      const response = await fetch('/api/reset', {
-        method: 'POST',
+      const response = await fetch("/api/reset", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       });
       if (response.ok) {
-        console.log('Reset successful');
+        console.log("Reset successful");
       } else {
-        console.error('Reset failed');
+        console.error("Reset failed");
       }
     } catch (error) {
-      console.error('Network error', error);
+      console.error("Network error", error);
     }
   };
 
   render() {
     return (
-      <button onClick={this.handleClick} className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded">
+      <button
+        onClick={this.handleClick}
+        className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
+      >
         Reset
       </button>
     );
@@ -87,7 +90,7 @@ export function HomePage() {
         <h1>No Update</h1>
       )}
       <div>
-          <ResetButton />
+        <ResetButton />
       </div>
     </>
   );

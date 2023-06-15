@@ -1,5 +1,5 @@
-import React from 'react';
-import ImageRenderer from './imagerenderer';
+import React from "react";
+import ImageRenderer from "./imagerenderer";
 
 interface DiscoveryMapProps {
   arrays: number[][];
@@ -16,14 +16,15 @@ export function DiscoveryMap({ arrays }: DiscoveryMapProps) {
     const blue = Math.round(255 - normalizedNum * 255);
     const red = Math.round(normalizedNum * 255);
     const green = Math.round((blue + red) / 2);
-    const color = red.toString(16).padStart(2, '0') + green.toString(16).padStart(2, '0') + blue.toString(16).padStart(2, '0');
+    const color =
+      red.toString(16).padStart(2, "0") +
+      green.toString(16).padStart(2, "0") +
+      blue.toString(16).padStart(2, "0");
 
     return `#${color}`;
   }
 
-  const pixels = arrays.map((arr) =>
-    arr.map((num) => calculateColor(num))
-  );
+  const pixels = arrays.map((arr) => arr.map((num) => calculateColor(num)));
 
   return (
     <div className="flex flex-col mt-5">

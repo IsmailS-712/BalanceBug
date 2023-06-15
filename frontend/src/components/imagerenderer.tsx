@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
 interface ImageRendererProps {
   pixels: string[][];
@@ -11,7 +11,7 @@ const ImageRenderer: React.FC<ImageRendererProps> = ({ pixels }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const pixelSize = 2;
@@ -29,7 +29,7 @@ const ImageRenderer: React.FC<ImageRendererProps> = ({ pixels }) => {
     }
   }, [pixels]);
 
-  return <canvas ref={canvasRef} width="720" height="480"/>;
+  return <canvas ref={canvasRef} width="720" height="480" />;
 };
 
 export default ImageRenderer;
