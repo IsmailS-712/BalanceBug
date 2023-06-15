@@ -1,8 +1,19 @@
 const fetch = require("node-fetch");
 
+// Maze mapping
+// 0 - 100 Status of the maze (0: space, 100: wall)
+// -1 - undiscovered
+// 200 - current position of the rover
+// 300 - path
+
+// Discovery
+// 0 - 100 Amount of discovery
+
 function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
   const width = 23;
   const height = 11;
+  const offset = 2;
+
   const angle_rad = (orientation * Math.PI) / 180;
   const cos_angle = Math.cos(angle_rad);
   const sin_angle = Math.sin(angle_rad);
@@ -20,6 +31,8 @@ function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
 
       const maze_x = x_start + rotated_x;
       const maze_y = y_start + rotated_y;
+
+      const distance = Math.sqrt(rotated_x ** 2 + rotated_y ** 2);
 
       if (
         maze_x >= 0 &&
@@ -56,15 +69,14 @@ function fill(maze) {
     for (let j = 0; j < 360; j++) {
       if (
         i > 0 &&
-        maze[i - 1][j] === 100 &&
         i < 240 - 1 &&
-        maze[i + 1][j] === 100 &&
+        maze[i + 1][j] === maze[i - 1][j] &&
         j > 0 &&
-        maze[i][j - 1] === 100 &&
-        j < 36 - -1 &&
-        maze[i][j + 1] === 100
+        maze[i][j - 1] === maze[i - 1][j] &&
+        j < 360 - 1 &&
+        maze[i][j + 1] === maze[i - 1][j]
       ) {
-        maze[i][j] = 100;
+        maze[i][j] = maze[i - 1][j];
       }
     }
   }

@@ -68,14 +68,24 @@ export function HomePage() {
 
   return (
     <>
-      <div className="flex flex-col md:w-[32rem] text-3xl md:text-4xl font-bold text-center mt-16 mb-7">
-        Balance Bug Homepage
+      <div className="flex flex-row w-full">
+        <div className="flex flex-col w-full text-left m-10 gap-4">
+          <div className="text-4xl font-bold">Balance Bug Homepage</div>
+          <h1>Current Date and Time: {currentDateTime.toLocaleString()}</h1>
+          <ResetButton />
+        </div>
+        <div className="flex flex-col w-full text-right m-10">
+          <div>Angle: X, Y, Z</div>
+          <div>Position: Xpos, Ypos</div>
+          <div>Orientation: Degree</div>
+          <div>Power of LEDs: Red / Blue / Yellow</div>
+        </div>
       </div>
-      <h1>Current Date and Time: {currentDateTime.toLocaleString()}</h1>
+
       {lastTime && mazemap && discoverymap ? (
         <>
           <div>Last Updated Time: {new Date(lastTime).toLocaleString()}</div>
-          <div className="flex flex-row mt-4 w-full">
+          <div className="flex flex-row w-full">
             <div className="flex flex-col w-full items-center">
               <div className="text-lg font-bold">Maze Mapping</div>
               <MazeMap arrays={mazemap} />
@@ -89,9 +99,6 @@ export function HomePage() {
       ) : (
         <h1>No Update</h1>
       )}
-      <div>
-        <ResetButton />
-      </div>
     </>
   );
 }
