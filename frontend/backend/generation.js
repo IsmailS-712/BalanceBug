@@ -34,7 +34,6 @@ function randomgen() {
     },
     body: JSON.stringify(payload),
   }).catch((error) => {
-    // Error occurred during the request
     console.error("Error:", error);
   });
 }
@@ -71,7 +70,6 @@ function reset() {
     },
     body: JSON.stringify(payload),
   }).catch((error) => {
-    // Error occurred during the request
     console.error("Error:", error);
   });
 }

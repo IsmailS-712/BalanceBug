@@ -16,6 +16,7 @@ app.use(express.static(path.join(__dirname, "build")));
 const { Client } = require("pg");
 const { randomgen, reset } = require("./backend/generation");
 const pathing = require("./backend/pathing");
+const parseInput = require("./backend/update")
 
 var maze = [];
 var discovery = [];
@@ -54,6 +55,25 @@ app.post("/api/reset", function (req, res) {
     reset();
     res.status(200).json({
       status: "successfully reset",
+    });
+  } catch (error) {
+    const errorType = error.constructor.name;
+    res.status(500).json({ error: errorType });
+  }
+});
+
+app.post("/api/update", function (req, res) {
+  try {
+    const data = JSON.parse(req.body);
+    var xpos = data.xpos;
+    var ypos = data.ypos;
+    var orientation = data.orientation;
+    var lines = data.lines;
+
+    parseInput(xpos, ypos, orientation, lines, maze, discovery);
+
+    res.status(200).json({
+      status: "successfully parsed data",
     });
   } catch (error) {
     const errorType = error.constructor.name;
