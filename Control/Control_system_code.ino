@@ -1,5 +1,4 @@
-// Basic demo for accelerometer readings from Adafruit MPU6050
-
+#include <esp32-hal-timer.h>
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
@@ -12,6 +11,17 @@ AccelStepper stepper2(AccelStepper::DRIVER, 16, 17);
 
 // instantiate the mpu
 Adafruit_MPU6050 mpu;
+
+// timer
+hw_timer_t *timer = NULL;
+
+volatile bool loopTrigger = false;
+
+void IRAM_ATTR interruptHandler() {
+  // add the code to control the motors here
+  stepper1.runSpeed();
+  stepper2.runSpeed();
+}
 
 // PID Vars
 float KP = 1.0;
@@ -32,6 +42,8 @@ const int stepPin_r = 17;
 const int dirPin_l = 15;
 const int stepPin_l = 2;
 
+const int testpin = 19;
+
 const int stepsPerRevolution = 50;
 const int stepDelay = 2500;
 
@@ -48,6 +60,9 @@ float  last_z_angle;
 float  last_gyro_x_angle;  // Store the gyro angles to compare drift
 float  last_gyro_y_angle;
 float  last_gyro_z_angle;
+
+float pid_output_x;
+float pid_output_y;
 
 unsigned long previous_time = 0;
 float dt = 0.0;
@@ -125,6 +140,7 @@ void setup(void) {
   pinMode(dirPin_l, OUTPUT);
   pinMode(stepPin_r, OUTPUT);
   pinMode(stepPin_l, OUTPUT);
+  pinMode(testpin,OUTPUT);
 
   mpu.setAccelerometerRange(MPU6050_RANGE_2_G);
 
@@ -132,14 +148,24 @@ void setup(void) {
 
   mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
 
+  Serial.println("Calibrating");
   calibrate_sensors();
-
+  Serial.println("Calibration Completed");
   Serial.println("");
   delay(20);
+
+  stepper1.setAcceleration(20000);
+  stepper2.setAcceleration(20000);
+
+  // set up the timer
+  timer = timerBegin(0, 20, true);  // Timer 0, prescaler 80, counting up
+  timerAttachInterrupt(timer, &interruptHandler, true);  // Attach the interrupt handler
+  timerAlarmWrite(timer, 50, true);  // Set the alarm value to 50,000 microseconds (50 milliseconds)
+  timerAlarmEnable(timer);
 }
 
 void loop() {
-
+  // check the control 
   unsigned long current_time = millis();
   dt = (current_time-previous_time) / 1000.0;
   previous_time = current_time;
@@ -154,9 +180,6 @@ void loop() {
 
   x_angle_acc = (atan2(accY, sqrt(pow(accX,2) + pow(accZ,2))) * 180 / PI) - base_x_accel;   // roll
   y_angle_acc = (atan2(-1*accX, sqrt(pow(accY,2) + pow(accZ,2))) * 180 / PI) - base_y_accel; // pitch
- 
-  //z_angle_acc = 0;
-  //acc_angle   = (x_angle_acc/y_angle_acc) * (180/M_PI);
 
   float gyro_angle_x = (g.gyro.x - base_x_gyro) / 131;
   float gyro_angle_y = (g.gyro.y - base_y_gyro) / 131;
@@ -187,22 +210,11 @@ void loop() {
   integral_term_x += KI * error_x * dt;
   float d_term_x = KD * (error_x - previous_error_x) / dt;
 
-  float pid_output_x = p_term_x + integral_term_x + d_term_x;
-  float pid_output_y = p_term_y + integral_term_y + d_term_y;
+  pid_output_x = p_term_x + integral_term_x + d_term_x;
+  pid_output_y = p_term_y + integral_term_y + d_term_y;
 
-  if (pid_output_y > 0) {
-    stepper1.setSpeed(pid_output_y * 50);
-    stepper2.setSpeed(-pid_output_y * 50);
-  } else if (output < 0) {
-    stepper1.setSpeed(-pid_output_y * 50);
-    stepper2.setSpeed(pid_output_y * 50);  
-  } else {
-    stepper1.setSpeed(0);
-    stepper2.setSpeed(0);
-  }
-
-  stepper1.run();
-  stepper2.run();
+  stepper1.setSpeed(pid_output_y * abs(pid_output_y));
+  stepper2.setSpeed(pid_output_y * abs(pid_output_y));
 
   delay(10);
 }
