@@ -9,14 +9,22 @@ export function MazeMap({ arrays }: MazeMapProps) {
   const maxValue = Math.max(...arrays.flat());
 
   function calculateColor(num: number) {
-    const min = 0;
-    const max = 100;
-
-    const normalizedNum = (num - min) / (max - min);
-    const shade = Math.round(255 - normalizedNum * 255);
-    const color = shade.toString(16).padStart(2, "0");
-
-    return `#${color}${color}${color}`;
+    if (num === -1) {
+      return '#69D2E7';
+    }
+    else if (num === 200) {
+      return '#FA6900';
+    }
+    else{
+      const min = 0;
+      const max = 100;
+  
+      const normalizedNum = (num - min) / (max - min);
+      const shade = Math.round(255 - normalizedNum * 255);
+      const color = shade.toString(16).padStart(2, "0");
+  
+      return `#${color}${color}${color}`;
+    }
   }
 
   const pixels = arrays.map((arr) => arr.map((num) => calculateColor(num)));

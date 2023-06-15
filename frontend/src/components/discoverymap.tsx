@@ -9,20 +9,16 @@ export function DiscoveryMap({ arrays }: DiscoveryMapProps) {
   const maxValue = Math.max(...arrays.flat());
 
   function calculateColor(num: number) {
-    const min = 0;
-    const max = 100;
-
-    const normalizedNum = (num - min) / (max - min);
-    const blue = Math.round(255 - normalizedNum * 255);
-    const red = Math.round(normalizedNum * 255);
-    const green = Math.round((blue + red) / 2);
-    const color =
-      red.toString(16).padStart(2, "0") +
-      green.toString(16).padStart(2, "0") +
-      blue.toString(16).padStart(2, "0");
-
-    return `#${color}`;
+    const startColor = [105, 210, 231]; // RGB values for #69D2E7
+    const endColor = [250, 105, 0]; // RGB values for #FA6900
+  
+    const r = Math.round(startColor[0] + (endColor[0] - startColor[0]) * (num / 100));
+    const g = Math.round(startColor[1] + (endColor[1] - startColor[1]) * (num / 100));
+    const b = Math.round(startColor[2] + (endColor[2] - startColor[2]) * (num / 100));
+  
+    return `rgb(${r}, ${g}, ${b})`;
   }
+  
 
   const pixels = arrays.map((arr) => arr.map((num) => calculateColor(num)));
 

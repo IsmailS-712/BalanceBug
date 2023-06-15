@@ -43,7 +43,7 @@ function reset() {
   for (let i = 0; i < 240; i++) {
     const row = [];
     for (let j = 0; j < 360; j++) {
-      row.push(0);
+      row.push(-1);
     }
     maze.push(row);
   }

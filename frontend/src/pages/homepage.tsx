@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { DiscoveryMap } from "../components/discoverymap";
 import { MazeMap } from "../components/mazemap";
+import { DataHub } from "../components/datahub";
 
 class ResetButton extends React.Component {
   handleClick = async () => {
@@ -70,15 +71,12 @@ export function HomePage() {
     <>
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-full text-left m-10 gap-4">
-          <div className="text-4xl font-bold">Balance Bug Homepage</div>
+          <div className="text-4xl font-bold">Balance Bot Homepage</div>
           <h1>Current Date and Time: {currentDateTime.toLocaleString()}</h1>
           <ResetButton />
         </div>
-        <div className="flex flex-col w-full text-right m-10">
-          <div>Angle: X, Y, Z</div>
-          <div>Position: Xpos, Ypos</div>
-          <div>Orientation: Degree</div>
-          <div>Power of LEDs: Red / Blue / Yellow</div>
+        <div className="flex flex-col w-full m-10">
+          <DataHub />
         </div>
       </div>
 

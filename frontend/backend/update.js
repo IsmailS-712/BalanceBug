@@ -40,7 +40,7 @@ function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
         maze_y >= 0 &&
         maze_y < maze.length
       ) {
-        maze[maze_y][maze_x] = 100;
+        maze[maze_y][maze_x] = 200;
       }
     }
   }
