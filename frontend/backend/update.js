@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-
+const shortestPath = require("./shortestpath");
 // Maze mapping
 // 0 - 100 Status of the maze (0: space, 100: wall)
 // -1 - undiscovered
@@ -15,6 +15,13 @@ function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
   fillMaze(maze);
   updateDiscovery(xpos, ypos, orientation, discovery);
   fillDiscovery(discovery);
+
+  var shorestpath = shortestPath(maze, xpos, ypos, xpos + 4, ypos + 4);
+  console.log(shorestpath);
+
+  for (let i = 0; i < shorestpath.length; i++) {
+    maze[shorestpath[i].x][shorestpath[i].y] = 300;
+  }
 
   const payload = {
     maze: maze,

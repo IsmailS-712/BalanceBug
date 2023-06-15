@@ -11,6 +11,8 @@ export function MazeMap({ arrays }: MazeMapProps) {
       return "#69D2E7";
     } else if (num === 200) {
       return "#F38630";
+    } else if (num === 300) {
+      return "#C02942";
     } else {
       const min = 0;
       const max = 100;
