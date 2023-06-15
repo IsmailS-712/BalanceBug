@@ -60,7 +60,7 @@ function reset() {
   const payload = {
     maze: maze,
     discovery: discovery,
-    timestamp: new Date().toISOString(),
+    timestamp: " ",
   };
 
   fetch("http://localhost:3000/api/updatemaze", {
