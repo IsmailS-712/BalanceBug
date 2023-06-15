@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 
 function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
   const width = 23;
@@ -7,8 +7,8 @@ function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
   const cos_angle = Math.cos(angle_rad);
   const sin_angle = Math.sin(angle_rad);
 
-  const x_start = xpos - Math.floor(width / 2);
-  const y_start = ypos - Math.floor(height / 2);
+  const x_start = xpos;
+  const y_start = ypos;
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -32,6 +32,8 @@ function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
     }
   }
 
+  fill(maze);
+
   const payload = {
     maze: maze,
     discovery: discovery,
@@ -47,6 +49,25 @@ function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
   }).catch((error) => {
     console.error("Error:", error);
   });
+}
+
+function fill(maze) {
+  for (let i = 0; i < 240; i++) {
+    for (let j = 0; j < 360; j++) {
+      if (
+        i > 0 &&
+        maze[i - 1][j] === 100 &&
+        i < 240 - 1 &&
+        maze[i + 1][j] === 100 &&
+        j > 0 &&
+        maze[i][j - 1] === 100 &&
+        j < 36 - -1 &&
+        maze[i][j + 1] === 100
+      ) {
+        maze[i][j] = 100;
+      }
+    }
+  }
 }
 
 module.exports = parseInput;
