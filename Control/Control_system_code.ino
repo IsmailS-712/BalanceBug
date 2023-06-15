@@ -4,7 +4,13 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 #include <math.h>
+#include <AccelStepper.h>
 
+// instantiate the steppers
+AccelStepper stepper1(AccelStepper::DRIVER, 2, 15); 
+AccelStepper stepper2(AccelStepper::DRIVER, 16, 17);
+
+// instantiate the mpu
 Adafruit_MPU6050 mpu;
 
 // PID Vars
@@ -165,21 +171,9 @@ void loop() {
   float angle_y = alpha*gyro_angle_y + (1.0 - alpha)*y_angle_acc;
   float angle_z = gyro_angle_z;  //Accelerometer doesn't give z-angle
 
-  // last_x_angle = gyro_angle_x;
-  // last_y_angle = gyro_angle_y;
-  // last_z_angle = gyro_angle_z;
-
   last_x_angle = angle_x;
   last_y_angle = angle_y;
   last_z_angle = angle_z; 
-
-  // Serial.print("x angle: ");
-  // Serial.println(angle_x);
-  // Serial.print("y angle: ");
-  // Serial.println(angle_y);
-  // Serial.print("z angle: ");
-  // Serial.println(angle_z);
-  // Serial.print("");
 
   // calc errors and do PID control 
   float error_x = desired_angle_x - angle_x;
@@ -196,38 +190,19 @@ void loop() {
   float pid_output_x = p_term_x + integral_term_x + d_term_x;
   float pid_output_y = p_term_y + integral_term_y + d_term_y;
 
-  int steps_x = int(pid_output_x * stepsPerRevolution);
-  int steps_y = int(pid_output_y * stepsPerRevolution);
-
-  // Serial.print("x steps: ");
-  // Serial.println(steps_x);
-  // Serial.print("y steps: ");
-  // Serial.println(steps_y);
-  // Serial.print("x error: ");
-  // Serial.println(error_x);
-  // Serial.print("y error: ");
-  // Serial.println(error_y);
-
-  // need to change how we control the motors
-
-  bool dir_r = pid_output_y >= 0 ? HIGH : LOW;
-  bool dir_l = !dir_r;
-
-  Serial.print("PID OUTPUT X: ");
-  Serial.println(pid_output_x);
-  Serial.print("PID OUTPUT Y: ");
-  Serial.println(pid_output_y);
-
-  for (int i = 0; i < abs(steps_y); i++){
-    digitalWrite(dirPin_l, dir_l);
-    digitalWrite(dirPin_r, dir_r);
-    digitalWrite(stepPin_l, HIGH);
-    digitalWrite(stepPin_r, HIGH);
-    delayMicroseconds(stepDelay);
-    digitalWrite(stepPin_l, LOW);
-    digitalWrite(stepPin_r, LOW);
-    delayMicroseconds(stepDelay);
+  if (pid_output_y > 0) {
+    stepper1.setSpeed(pid_output_y * 50);
+    stepper2.setSpeed(-pid_output_y * 50);
+  } else if (output < 0) {
+    stepper1.setSpeed(-pid_output_y * 50);
+    stepper2.setSpeed(pid_output_y * 50);  
+  } else {
+    stepper1.setSpeed(0);
+    stepper2.setSpeed(0);
   }
+
+  stepper1.run();
+  stepper2.run();
 
   delay(10);
 }
