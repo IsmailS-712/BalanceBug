@@ -1,19 +1,21 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
+#include <HTTPClient.h>
 //#include <cstring.h>
 
-#define WIFI_SSID "jamies_iphone"
-#define PASSWORD "jamieturner2"
-#define AWS_ENDPOINT "my_AWS_endpoint" //??
-#define CLIENT_ID "client's_ID"
-#define PEM_CERTIFICATE "certificate1234" //need
-#define PRIVATE_KEY "private_key" //need
+#define WIFI_SSID     "jamies_iphone"
+#define PASSWORD      "jamieturner2"
+#define URL           "https://balance-bug.5959pn4l16bde.eu-west-2.cs.amazonlightsail.com/"
+#define AWS_ENDPOINT  "/api/update" // exposed port
+// #define CLIENT_ID "client's_ID"
+// #define PEM_CERTIFICATE "certificate1234" //need
+// #define PRIVATE_KEY "private_key" //need
 
 bool junction = false;
-
 WiFiClientSecure wifiClient;
-PubSubClient mqttClient(wifiClient);
+//PubSubClient mqttClient(wifiClient);
 
 void connectToWiFi(){
   WiFi.begin(WIFI_SSID, PASSWORD);
@@ -25,45 +27,45 @@ void connectToWiFi(){
 }
 
 void connectToAws(){
-  mqttClient.setServer(AWS_ENDPOINT, 8883);
-  mqttClient.setCallback(callback);
-
-  while(!mqttClient.connected()){
-    if(mqttClient.connect(CLIENT_ID, PEM_CERTIFICATE, PRIVATE_KEY)){
-      Serial.println("Connected to AWS");
-      mqttClient.subscribe("Purpose of message"); //need to change ofc
-    } else{
-      Serial.println("Failed to connect to AWS, will try again shortly...");
-      delay(5000);
-    }
+  // mqttClient.setServer(AWS_ENDPOINT, 8883);
+  // mqttClient.setCallback(callback);
+  if(WiFi.status() == WL_CONNECTED){
+    HTTPClient http;
+    String update_path = URL + AWS_ENDPOINT;
+    http.begin(update_path);
   }
 }
 
-void callback(String topic, byte* payload, unsigned int length){
-  //handle incoming mqtt messages, may not be relevant 
-}
-
-
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
   connectToWiFi();
-  wifiClient.setCACert(PEM_CERTIFICATE);
-  connectToAws();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  if(!mqttClient.connected()){ 
-    connectToAws();
-  }
-
-  mqttClient.loop();
 
   String payload = ""; // payload, in this case will be either coordinates, junction, or both
-  //bool junction = false;
-  
-  mqttClient.publish("Coordinates/junction", payload.c_str());
+  if(WiFi.status() == WL_CONNECTED){
+    HTTPClient http;
+    String update_path = URL + AWS_ENDPOINT;
+    http.begin(update_path); // could need a request number at the end, not too sure
+    int httpCode = http.GET();
 
+    if(httpCode >0){
+      String payload = http.getString();
+      Serial.println("\nStatuscode: " + String(httpCode));
+      Serial.println(payload);
+
+      char json[500];
+      payload.replace(" ", "");
+      payload.replace("\n", "");
+      payload.trim();
+      payload.remove(0,1);
+      payload.toCharArray(json, 500);
+    }
+
+  }else{
+    Serial.println("connection lost");
+  }
+  // HTTP.addHeader("content type", ""); // hanbo help later
   delay(1000);
 }
