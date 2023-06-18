@@ -16,11 +16,10 @@ function parseInput(xpos, ypos, orientation, lines, maze, discovery) {
   updateDiscovery(xpos, ypos, orientation, discovery);
   fillDiscovery(discovery);
 
-  var shorestpath = shortestPath(maze, xpos, ypos, xpos + 4, ypos + 4);
-  console.log(shorestpath);
+  var shortestpath = shortestPath(maze, xpos, ypos, 239, 359);
 
-  for (let i = 0; i < shorestpath.length; i++) {
-    maze[shorestpath[i].x][shorestpath[i].y] = 300;
+  for (let i = 0; i < shortestpath.length; i++) {
+    maze[shortestpath[i][0]][shortestpath[i][1]] = 300;
   }
 
   const payload = {
