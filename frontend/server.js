@@ -22,6 +22,12 @@ var maze = [];
 var discovery = [];
 var timestamp;
 
+var coordinate;
+var angles;
+var orientation;
+var power;
+var datatime;
+
 app.get("/api/pathing", function (req, res) {
   try {
     const data = JSON.parse(req.body);
@@ -53,6 +59,11 @@ app.post("/api/mockupdate", function (req, res) {
 app.post("/api/reset", function (req, res) {
   try {
     reset();
+     coordinate= null;
+ angles = null;
+ orientation= null;
+ power= null;
+ datatime= null;
     res.status(200).json({
       status: "successfully reset",
     });
@@ -128,6 +139,41 @@ app.get("/api/displaymaze", function (req, res) {
     maze: maze,
     discovery: discovery,
     time: timestamp,
+  });
+});
+
+app.post("/api/datahub", function (req, res) {
+  try {
+    const payload = JSON.parse(req.body);
+    if (payload.hasOwnProperty("coordinate")) {
+      coordinate = payload.coordinate;
+    }
+    if (payload.hasOwnProperty("angles")) {
+      angles = payload.angles;
+    }
+    if (payload.hasOwnProperty("orientation")) {
+      orientation = payload.orientation;
+    }
+    if (payload.hasOwnProperty("power")) {
+      power = payload.power;
+    }
+    datatime = new Date().toLocaleString();
+    res.status(200).json({
+      status: "successfully received data",
+    });
+  } catch (error) {
+    const errorType = error.constructor.name;
+    res.status(500).json({ error: errorType });
+  }
+});
+
+app.get("/api/displaydata", function (req, res) {
+  res.status(200).json({
+    coordinate: coordinate,
+    angles: angles,
+    orientation: orientation,
+    power: power,
+    timestamp: datatime
   });
 });
 

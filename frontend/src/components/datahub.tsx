@@ -1,4 +1,34 @@
+import { useState, useEffect } from 'react';
+
+interface Data {
+  coordinate?: [number, number];
+  angles?: [number, number, number];
+  orientation?: number;
+  power?: [string, string, string];
+  timestamp?: string;
+}
+
 export function DataHub() {
+  const [data, setData] = useState<Data | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/displaydata');
+        const jsonData = await response.json();
+        setData(jsonData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    const intervalId = setInterval(fetchData, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   return (
     <>
       <div className="text-3xl font-bold text-right">Data Hub</div>
@@ -8,12 +38,14 @@ export function DataHub() {
           <span>Coordinate:</span>
           <span>Orientation:</span>
           <span>Power:</span>
+          <span>Timestamp:</span>
         </div>
         <div className="flex flex-col text-right w-1/4">
-          <span>X, Y, Z</span>
-          <span>Xpos, Ypos</span>
-          <span>Degree</span>
-          <span>Red / Blue / Yellow</span>
+          <span>{data?.angles?.join(', ')}</span>
+          <span>{data?.coordinate?.join(', ')}</span>
+          <span>{data?.orientation}</span>
+          <span>{data?.power?.join(' / ')}</span>
+          <span>{data?.timestamp}</span>
         </div>
       </div>
     </>
