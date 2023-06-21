@@ -1,21 +1,21 @@
 #include <WiFi.h>
-#include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
-//#include <cstring.h>
 
 #define WIFI_SSID     "jamies_iphone"
 #define PASSWORD      "jamieturner2"
-#define URL           "https://balance-bug.5959pn4l16bde.eu-west-2.cs.amazonlightsail.com/"
-#define AWS_ENDPOINT  "/api/update" // exposed port
-// #define CLIENT_ID "client's_ID"
-// #define PEM_CERTIFICATE "certificate1234" //need
-// #define PRIVATE_KEY "private_key" //need
+String URL          = "https://balance-bug.5959pn4l16bde.eu-west-2.cs.amazonlightsail.com/";
+String LOCAL_HOST   = "localhost:3000/";
+String AWS_ENDPOINT = "/api/update"; // exposed port
 
 bool junction = false;
-WiFiClientSecure wifiClient;
-//PubSubClient mqttClient(wifiClient);
+unsigned int xpos = 100;
+unsigned int ypos = 10;
+unsigned int orientation = 24;
+bool line_array[3] = {0, 1, 0};
+
+
 
 void connectToWiFi(){
   WiFi.begin(WIFI_SSID, PASSWORD);
@@ -26,46 +26,32 @@ void connectToWiFi(){
   Serial.println("Connected to internet!");
 }
 
-void connectToAws(){
-  // mqttClient.setServer(AWS_ENDPOINT, 8883);
-  // mqttClient.setCallback(callback);
-  if(WiFi.status() == WL_CONNECTED){
-    HTTPClient http;
-    String update_path = URL + AWS_ENDPOINT;
-    http.begin(update_path);
-  }
-}
-
 void setup() {
   Serial.begin(115200);
   connectToWiFi();
 }
 
 void loop() {
-
-  String payload = ""; // payload, in this case will be either coordinates, junction, or both
   if(WiFi.status() == WL_CONNECTED){
+    WiFiClient client;
     HTTPClient http;
-    String update_path = URL + AWS_ENDPOINT;
-    http.begin(update_path); // could need a request number at the end, not too sure
-    int httpCode = http.GET();
 
-    if(httpCode >0){
-      String payload = http.getString();
-      Serial.println("\nStatuscode: " + String(httpCode));
-      Serial.println(payload);
+    // sending data to the rover
+    String update_path = URL + "/api/update"; // need to include endpoint in again
+    http.begin(client, update_path); // could need a request number at the end, not too sure
+    int httpResponsePost = http.POST("{\"xpos\""); // () needs the payload, a string in the format of the json data needed {"xpos": xpos, etc..}
+    Serial.print("HTTP response code: " + String(httpResponsePost) + "\n");
+    http.end();
 
-      char json[500];
-      payload.replace(" ", "");
-      payload.replace("\n", "");
-      payload.trim();
-      payload.remove(0,1);
-      payload.toCharArray(json, 500);
-    }
+    //recieving rover data
+    http.begin(client, URL + "api/recieve");
+    int httpResponseGet = http.GET(); // dont need to pass arguments
+    String payload = http.getString(); // no clue what the format of payload is... it includes values that need to be passed to the drive control 
+    Serial.print("HTTP response code: " + String(httpResponseGet) + "\n");
+    Serial.print("HTTP payload is: " + payload + "\n");
+    http.end();
 
   }else{
     Serial.println("connection lost");
   }
-  // HTTP.addHeader("content type", ""); // hanbo help later
-  delay(1000);
 }
