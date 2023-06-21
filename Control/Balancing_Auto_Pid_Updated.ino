@@ -11,7 +11,7 @@
 static MPU6050 imu;
 
 static double pitch, pitch_setpoint, pitch_action;
-static AutoPID pitch_controller(&pitch, &pitch_setpoint, &pitch_action, -250, 250, 7, 0, 0);
+static AutoPID pitch_controller(&pitch, &pitch_setpoint, &pitch_action, -150, 150, 4, 0, 0);
 
 static ContinuousStepper left_stepper, right_stepper;
 
@@ -45,7 +45,7 @@ void setup()
     attachInterrupt(IMU_INT_PIN, dmpDataReady, RISING);
 
      pitch_setpoint = 0.0;
-     pitch_controller.setTimeStep(5);
+     pitch_controller.setTimeStep(0.5);
 
     left_stepper.begin(2, 15);
     left_stepper.spin(1);
@@ -66,6 +66,9 @@ void loop()
     static Quaternion quarternion;
     static VectorFloat gravity;
     static float yaw_pitch_roll[3];
+
+        left_stepper.loop();
+        right_stepper.loop();
     
      if (imu.dmpGetCurrentFIFOPacket(dmp_fifo_buffer)) {
         imu.dmpGetQuaternion(&quarternion, dmp_fifo_buffer);
@@ -75,8 +78,6 @@ void loop()
         pitch_controller.run();
         left_stepper.spin(-pitch_action * abs(pitch_action));
         right_stepper.spin(pitch_action * abs(pitch_action));
-        left_stepper.loop();
-        right_stepper.loop();
         Serial.printf("pitch = %7.2lf, pitch_action = %.1lf\n", yaw_pitch_roll[1] / 3.14 * 180, pitch_action);
      }
     
