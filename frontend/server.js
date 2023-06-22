@@ -14,6 +14,7 @@ app.use(bodyParser.raw(options));
 app.use(express.static(path.join(__dirname, "build")));
 
 const { Client } = require("pg");
+const crypto = require("crypto");
 const { randomgen, reset } = require("./backend/generation");
 const parseInput = require("./backend/update");
 
@@ -136,41 +137,50 @@ app.post("/api/update", function (req, res) {
 });
 
 app.post("/api/updatemaze", function (req, res) {
-  // const client = new Client({
-  //   connectionString: process.env.DATABASE_URL,
-  //   ssl: { rejectUnauthorized: false },
-  // });
-
-  //   client
-  //     .connect()
-  //     .then(() => {
-  //       const query = "INSERT INTO maze_run (layout, timestamp) VALUES ($1, $2)";
-  //       const values = [maze, currentTimestamp];
-
-  //       return client.query(query, values);
-  //     })
-  //     .then(() => {
-  //       res.status(200).json({
-  //         status: "successfully updated maze and database",
-  //       });
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error inserting row:", error);
-  //       res.status(500).send(error.message);
-  //     });
-  //   client.end();
-
-  // console.log(maze);
-  // console.log(discovery);
-  // console.log(timestamp);
   try {
     const payload = JSON.parse(req.body);
     maze = payload.maze;
     discovery = payload.discovery;
     timestamp = payload.timestamp;
-    res.status(200).json({
-      status: "successfully updated maze and database",
+
+    var currentTimestamp = new Date().toISOString();
+    var concatenatedString = JSON.stringify(maze) + currentTimestamp;
+
+    var id = crypto
+      .createHash("sha256")
+      .update(concatenatedString)
+      .digest("hex");
+
+    const client = new Client({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
     });
+
+    client
+      .connect()
+      .then(() => {
+        var query = `INSERT INTO mappings (id, maze, discovery, timestamp) VALUES ('${id}', '${JSON.stringify(
+          maze
+        )}', '${JSON.stringify(discovery)}', '${currentTimestamp}')`;
+        return client.query(query);
+      })
+      .then(() => {
+        res.status(200).json({
+          status: "successfully updated maze and database",
+        });
+      })
+      .catch((error) => {
+        console.error("Error inserting row:", error);
+        res.status(500).send(error.message);
+      })
+      .finally(() => {
+        client.end();
+      });
+
+    // console.log(maze);
+    // console.log(discovery);
+    // console.log(timestamp);
+    // console.log(id);
   } catch (error) {
     const errorType = error.constructor.name;
     res.status(500).json({ error: errorType });
