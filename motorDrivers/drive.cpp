@@ -26,6 +26,13 @@ void setup() {
   Serial.println("Timer set to 5 seconds (timerDelay variable), it will take 5 seconds before publishing the first reading.");
 }
 
+
+void stop(){
+          analogWrite(LPWM,0);
+          analogWrite(RPWM,0);
+          digitalWrite(LDIR,0);
+          digitalWrite(RDIR,0);
+}
 // This section of code is the main loop
 //It constantly checks for UDP signals from the user and when received the rover's movement is controlled or the sensors are activated as required
 
@@ -60,26 +67,31 @@ void loop()
           analogWrite(RPWM,50);
           digitalWrite(LDIR,1);
           digitalWrite(RDIR,1);
+          sleep(1000);              // This is to only activate the motors for 1s at a time to allow for more precise control
+          stop();
         } else if(value == 'bck'){ // backward
           analogWrite(LPWM,50);
           analogWrite(RPWM,50);
           digitalWrite(LDIR,0);
           digitalWrite(RDIR,0);
+          sleep(1000);
+          stop();
         } else if(value == 'lft'){ // left
           analogWrite(LPWM,20);
           analogWrite(RPWM,20);
           digitalWrite(LDIR,0);
           digitalWrite(RDIR,1);
+          sleep(1000);
+          stop();
         } else if(value == 'rht'){ // right
           analogWrite(LPWM,20);
           analogWrite(RPWM,20);
           digitalWrite(LDIR,1);
           digitalWrite(RDIR,0);
+          sleep(1000);
+          stop();
         } else if(value == 'stop'){ // stop
-          analogWrite(LPWM,0);
-          analogWrite(RPWM,0);
-          digitalWrite(LDIR,0);
-          digitalWrite(RDIR,0);
+          stop();
         }
 
         // Udp.beginPacket(Udp.remoteIP(), 55125);
