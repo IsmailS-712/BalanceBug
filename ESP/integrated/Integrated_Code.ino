@@ -150,22 +150,16 @@ void loop() {
 
 	// EVENTUALLY REMOVE ALL THE SERIAL PRINT STUFF
 	if (command == "fwd") {
-		Serial.println("forward");
 		run_motor(-250,+250);
 	} else if (command == "bck") {
-		Serial.println("back");
 		run_motor(250,-250);
 	} else if (command == "lft") {
-		Serial.println("left");
 		run_motor(-250,250/4);
 	} else if (command == "rht") {
-		Serial.println("right");
 		run_motor(-250/4,250);
 	} else if (command == "stop") {
-		Serial.println("stop");
 		run_motor(0,0);
 	} else {
-		Serial.println("invalid");
 	}
 
 }
