@@ -15,7 +15,6 @@ app.use(express.static(path.join(__dirname, "build")));
 
 const { Client } = require("pg");
 const { randomgen, reset } = require("./backend/generation");
-const pathing = require("./backend/pathing");
 const parseInput = require("./backend/update");
 
 var maze = [];
@@ -25,8 +24,50 @@ var timestamp;
 var coordinate;
 var angles;
 var orientation;
-var power;
+var red;
+var blue;
+var yellow;
 var datatime;
+
+const shortestPath = require("./backend/shortestpath");
+
+function findClosestSquare(arr, x, y) {
+  let closestDistance = Number.MAX_SAFE_INTEGER;
+  let closestCoordinate = null;
+
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = 0; j < arr[i].length; j++) {
+      if (arr[i][j] >= 0 && arr[i][j] <= 50) {
+        const distance = Math.abs(i - x) + Math.abs(j - y);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestCoordinate = [i, j];
+        }
+      }
+    }
+  }
+
+  return closestCoordinate;
+}
+
+function pathing(discovery, orientation, xpos, ypos) {
+  var closestSquare = findClosestSquare(discovery, xpos, ypos);
+  if (closestSquare === []) {
+    return;
+  }
+  var shortestpath = shortestPath(
+    maze,
+    xpos,
+    ypos,
+    closestSquare[0],
+    closestSquare[1]
+  );
+  while (shortestpath === []) {
+    discovery[closestSquare[0]][closestSquare[1]] = 100;
+    pathing(discovery, orientation, xpos, ypos);
+  }
+  return shortestpath;
+}
 
 app.get("/api/pathing", function (req, res) {
   try {
@@ -59,11 +100,13 @@ app.post("/api/mockupdate", function (req, res) {
 app.post("/api/reset", function (req, res) {
   try {
     reset();
-     coordinate= null;
- angles = null;
- orientation= null;
- power= null;
- datatime= null;
+    coordinate = null;
+    angles = null;
+    orientation = null;
+    red = null;
+    blue = null;
+    yellow = null;
+    datatime = null;
     res.status(200).json({
       status: "successfully reset",
     });
@@ -154,8 +197,14 @@ app.post("/api/datahub", function (req, res) {
     if (payload.hasOwnProperty("orientation")) {
       orientation = payload.orientation;
     }
-    if (payload.hasOwnProperty("power")) {
-      power = payload.power;
+    if (payload.hasOwnProperty("blue")) {
+      blue = payload.blue;
+    }
+    if (payload.hasOwnProperty("yellow")) {
+      yellow = payload.yellow;
+    }
+    if (payload.hasOwnProperty("red")) {
+      red = payload.red;
     }
     datatime = new Date().toLocaleString();
     res.status(200).json({
@@ -172,8 +221,10 @@ app.get("/api/displaydata", function (req, res) {
     coordinate: coordinate,
     angles: angles,
     orientation: orientation,
-    power: power,
-    timestamp: datatime
+    red: red,
+    blue: blue,
+    yellow: yellow,
+    timestamp: datatime,
   });
 });
 
