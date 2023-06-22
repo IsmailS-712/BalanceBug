@@ -11,17 +11,9 @@
 static MPU6050 imu;
 
 static double pitch, pitch_setpoint, pitch_action;
-static AutoPID pitch_controller(&pitch, &pitch_setpoint, &pitch_action, -150, 150, 4, 0, 0);
+static AutoPID pitch_controller(&pitch, &pitch_setpoint, &pitch_action, -25, 25 , 7.7, 100, 0.8);
 
 static ContinuousStepper left_stepper, right_stepper;
-
-//hw_timer_t* stepper_timer = nullptr;
-
-void ARDUINO_ISR_ATTR on_stepper_timer()
-{
-    left_stepper.loop();
-    right_stepper.loop();
-}
 
 volatile bool mpuInterrupt = false;
 void dmpDataReady() {
@@ -44,18 +36,13 @@ void setup()
     imu.setDMPEnabled(true);
     attachInterrupt(IMU_INT_PIN, dmpDataReady, RISING);
 
-     pitch_setpoint = 0.0;
+     pitch_setpoint = -4.0;
      pitch_controller.setTimeStep(0.5);
 
     left_stepper.begin(2, 15);
-    left_stepper.spin(1);
+    left_stepper.spin(0.1);
     right_stepper.begin(17, 16);
-    right_stepper.spin(1);;
-
-    //stepper_timer = timerBegin(0, 20, true);
-     //timerAttachInterrupt(stepper_timer, on_stepper_timer, false);
-     //timerAlarmWrite(stepper_timer, 50, true);
-    //timerAlarmEnable(stepper_timer);
+    right_stepper.spin(0.1);
 }
 
 void loop()
@@ -80,16 +67,5 @@ void loop()
         right_stepper.spin(pitch_action * abs(pitch_action));
         Serial.printf("pitch = %7.2lf, pitch_action = %.1lf\n", yaw_pitch_roll[1] / 3.14 * 180, pitch_action);
      }
-    
-    //  pitch_controller.run();
 
-    //  left_stepper.spin(-pitch_action * abs(pitch_action));
-    //  right_stepper.spin(pitch_action * abs(pitch_action));
-
-    //  if (loop_count++ >= 1000) {
-    //     auto now_us = micros();
-    //     Serial.printf("pitch = %7.2lf, pitch_action = %7.1lf, sample_rate = %.1lf\n", pitch, pitch_action, (double)loop_count / (now_us - last_print_time_us) * 1000000.0);
-    //    last_print_time_us = micros();
-    //     loop_count = 0;
-    //  }
 }
