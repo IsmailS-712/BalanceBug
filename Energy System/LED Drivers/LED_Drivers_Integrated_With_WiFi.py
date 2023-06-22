@@ -4,6 +4,7 @@ import json
 import network
 import socket
 from time import sleep
+import utime 
 
 # WiFi config
 ssid = 'Vincenzo'
@@ -11,6 +12,9 @@ password = 'hello1234'
 
 tried_connection = False
 connected = False
+
+time_interval = 2
+start_time = utime.time()
 
 def connect():
     #Connect to WLAN
@@ -77,24 +81,15 @@ def interrupt_callback(timer):
     global interrupt_flag
     interrupt_flag = True
     
-def post_to_server(power, colour):
-    pr = 0
-    py = 0
-    pb = 0
-    if (colour == "red"):
-        pr = power
-    elif (colour == "blue"):
-        pb = power
-    else:
-        py = power
+def post_to_server(power):
     power_data = {
-        "power": [pr, pb, py]
+        "red": power
     }
     try:
         response = urequests.post('https://balance-bug.5959pn4l16bde.eu-west-2.cs.amazonlightsail.com/api/datahub', data = json.dumps(power_data))
     except:
         pass
-
+    
 while True:
     
     # try for 15 seconds to connect to the sever
@@ -107,14 +102,15 @@ while True:
     
     pwm_en.value(1)
     interrupt_flag = False
-
+    
     vin   = 5*(vin_pin.read_u16()  * (3.3/65535))   # input voltage
     vout  = 5*(vout_pin.read_u16() * (3.3/65535))   # output voltage
     vret  = 0.7*(vret_pin.read_u16() * (3.3/65535))   # current reference pin (1.02ohm)
     current  = vret / 1.02
     
-    if (connected == True):
-        post_to_server(current*vout, "red") # remember to change the colour depending on which driver the code is being uploaded to
+    if utime.time() - start_time >= time_interval:
+        post_to_server(current*vout)
+        start_time = utime.time()
 
     # PI(D) CONTROL
     # target current = 0.15A
