@@ -24,7 +24,9 @@ var timestamp;
 var coordinate;
 var angles;
 var orientation;
-var power;
+var red;
+var blue;
+var yellow;
 var datatime;
 
 const shortestPath = require("./backend/shortestpath");
@@ -101,7 +103,9 @@ app.post("/api/reset", function (req, res) {
     coordinate = null;
     angles = null;
     orientation = null;
-    power = null;
+    red = null;
+    blue = null;
+    yellow = null;
     datatime = null;
     res.status(200).json({
       status: "successfully reset",
@@ -193,8 +197,14 @@ app.post("/api/datahub", function (req, res) {
     if (payload.hasOwnProperty("orientation")) {
       orientation = payload.orientation;
     }
-    if (payload.hasOwnProperty("power")) {
-      power = payload.power;
+    if (payload.hasOwnProperty("blue")) {
+      blue = payload.blue;
+    }
+    if (payload.hasOwnProperty("yellow")) {
+      yellow = payload.yellow;
+    }
+    if (payload.hasOwnProperty("red")) {
+      red = payload.red;
     }
     datatime = new Date().toLocaleString();
     res.status(200).json({
@@ -211,7 +221,9 @@ app.get("/api/displaydata", function (req, res) {
     coordinate: coordinate,
     angles: angles,
     orientation: orientation,
-    power: power,
+    red: red,
+    blue: blue,
+    yellow: yellow,
     timestamp: datatime,
   });
 });

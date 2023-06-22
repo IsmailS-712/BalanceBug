@@ -4,7 +4,9 @@ interface Data {
   coordinate?: [number, number];
   angles?: [number, number, number];
   orientation?: number;
-  power?: [string, string, string];
+  red?: number;
+  blue?: number;
+  yellow?: number;
   timestamp?: string;
 }
 
@@ -37,14 +39,14 @@ export function DataHub() {
           <span>Angle:</span>
           <span>Coordinate:</span>
           <span>Orientation:</span>
-          <span>Power:</span>
+          <span>Power (RBY mW):</span>
           <span>Timestamp:</span>
         </div>
         <div className="flex flex-col text-right w-1/4">
-          <span>{data?.angles?.join(", ")}</span>
-          <span>{data?.coordinate?.join(", ")}</span>
+          <span>{data?.angles?.join(" / ")}</span>
+          <span>{data?.coordinate?.join(" / ")}</span>
           <span>{data?.orientation}</span>
-          <span>{data?.power?.join(" / ")}</span>
+          <span>{`${data?.red} / ${data?.blue} / ${data?.yellow}`}</span>
           <span>{data?.timestamp}</span>
         </div>
       </div>
