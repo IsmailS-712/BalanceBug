@@ -151,31 +151,31 @@ app.post("/api/updatemaze", function (req, res) {
       .update(concatenatedString)
       .digest("hex");
 
-    const client = new Client({
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-    });
+    // const client = new Client({
+    //   connectionString: process.env.DATABASE_URL,
+    //   ssl: { rejectUnauthorized: false },
+    // });
 
-    client
-      .connect()
-      .then(() => {
-        var query = `INSERT INTO mappings (id, maze, discovery, timestamp) VALUES ('${id}', '${JSON.stringify(
-          maze
-        )}', '${JSON.stringify(discovery)}', '${currentTimestamp}')`;
-        return client.query(query);
-      })
-      .then(() => {
-        res.status(200).json({
-          status: "successfully updated maze and database",
-        });
-      })
-      .catch((error) => {
-        console.error("Error inserting row:", error);
-        res.status(500).send(error.message);
-      })
-      .finally(() => {
-        client.end();
-      });
+    // client
+    //   .connect()
+    //   .then(() => {
+    //     var query = `INSERT INTO mappings (id, maze, discovery, timestamp) VALUES ('${id}', '${JSON.stringify(
+    //       maze
+    //     )}', '${JSON.stringify(discovery)}', '${currentTimestamp}')`;
+    //     return client.query(query);
+    //   })
+    //   .then(() => {
+    //     res.status(200).json({
+    //       status: "successfully updated maze and database",
+    //     });
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error inserting row:", error);
+    //     res.status(500).send(error.message);
+    //   })
+    //   .finally(() => {
+    //     client.end();
+    //   });
 
     // console.log(maze);
     // console.log(discovery);
@@ -236,6 +236,27 @@ app.get("/api/displaydata", function (req, res) {
     yellow: yellow,
     timestamp: datatime,
   });
+});
+
+let rawData = {
+  left: 'Na',
+  right: 'Na',
+  front: 'Na'
+};
+
+app.get('/api/rawdata', (req, res) => {
+  res.json(rawData);
+});
+
+app.put('/api/rawdata', (req, res) => {
+  const updatedFields = JSON.parse(req.body);
+
+  for (let key in updatedFields) {
+    if (rawData.hasOwnProperty(key)) {
+      rawData[key] = updatedFields[key];
+    }
+  }
+  res.json({ message: 'Data updated successfully' });
 });
 
 // Server application
