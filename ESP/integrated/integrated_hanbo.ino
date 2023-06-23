@@ -15,6 +15,9 @@
 #define RX2 16
 #define SERIAL_MODE SERIAL_8N1
 
+TaskHandle_t Task1;
+TaskHandle_t Task2;
+
 uint32_t data = 0;      // data -> full after 4 bytes have been added
 uint8_t byteNum = 0;    // tracks the number of bytes that have been added to the data variable
 uint8_t dataCount = 0;  // flag to see if the full data packet is ready to be decoded -> 4 32bit words
@@ -121,57 +124,80 @@ void setup() {
 
   connectToWiFi();
 
+    //create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
+  xTaskCreatePinnedToCore(
+                    Task1code,   /* Task function. */
+                    "Task1",     /* name of task. */
+                    10000,       /* Stack size of task */
+                    NULL,        /* parameter of the task */
+                    1,           /* priority of the task */
+                    &Task1,      /* Task handle to keep track of created task */
+                    0);          /* pin task to core 0 */                  
+  delay(500);
+
+    //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
+  xTaskCreatePinnedToCore(
+                    Task2code,   /* Task function. */
+                    "Task2",     /* name of task. */
+                    10000,       /* Stack size of task */
+                    NULL,        /* parameter of the task */
+                    1,           /* priority of the task */
+                    &Task2,      /* Task handle to keep track of created task */
+                    1);          /* pin task to core 1 */
+    delay(500);
+
   // SET UP MOTOR OUTPUTS
-  // left_stepper.begin(2, 15);
-  // left_stepper.spin(0.1);
-  // right_stepper.begin(17, 16);
-  // right_stepper.spin(0.1);
+  left_stepper.begin(2, 15);
+  left_stepper.spin(0.1);
+  right_stepper.begin(17, 16);
+  right_stepper.spin(0.1);
 }
 
 void loop() {
-  packetFull = false;
-  while (Serial2.available() && !packetFull) {
-    uint8_t byte = Serial2.read();
-    data = data | (uint32_t)byte << (8 * byteNum);
-    byteNum++;
-    if (byteNum == 4) {
-      byteNum = 0;
-      data = 0;
-      dataCount++;
+  right_stepper.loop();
+  left_stepper.loop();
+}
+
+//Task1code: blinks an LED every 1000 ms
+void Task1code( void * pvParameters ){
+  Serial.print("Task1 running on core ");
+  Serial.println(xPortGetCoreID());
+
+  for(;;){
+    // get the motor data
+    if (WiFi.status() == WL_CONNECTED) {
+      // putRawData();
+      getRawData();
+    } else {
+      Serial.println("Wi-Fi disconnected. Reconnecting...");
+      WiFi.begin(ssid, password);
     }
-    if (dataCount == 4) {
-      packetFull = true;
-      decode(dataPacket);
+  } 
+}
+
+//Task2code: blinks an LED every 700 ms
+void Task2code( void * pvParameters ){
+  Serial.print("Task2 running on core ");
+  Serial.println(xPortGetCoreID());
+
+  for(;;){
+    // get the fpga data
+    packetFull = false;
+    while (Serial2.available() && !packetFull) {
+      uint8_t byte = Serial2.read();
+      data = data | (uint32_t)byte << (8 * byteNum);
+      byteNum++;
+      if (byteNum == 4) {
+        byteNum = 0;
+        data = 0;
+        dataCount++;
+      }
+      if (dataCount == 4) {
+        packetFull = true;
+        decode(dataPacket);
+      }
     }
   }
-
-  Serial.println(walls);
-
-  if (WiFi.status() == WL_CONNECTED) {
-    // putRawData();
-    getRawData();
-  } else {
-    Serial.println("Wi-Fi disconnected. Reconnecting...");
-    WiFi.begin(ssid, password);
-  }
-
-  // right_stepper.loop();
-  // left_stepper.loop();
-
-  // // EVENTUALLY REMOVE ALL THE SERIAL PRINT STUFF
-  // if (command == "fwd") {
-  // 	run_motor(-250,+250);
-  // } else if (command == "bck") {
-  // 	run_motor(250,-250);
-  // } else if (command == "lft") {
-  // 	run_motor(-250,250/4);
-  // } else if (command == "rht") {
-  // 	run_motor(-250/4,250);
-  // } else if (command == "stop") {
-  // 	run_motor(0,0);
-  // } else {
-  // }
-    delay(200);  // Wait for 5 seconds before sending the next request
 }
 
 void putRawData() {
@@ -198,12 +224,24 @@ void getRawData() {
 
   JSONVar keys = myObject.keys();
 
-  // for (int i = 0; i < keys.length(); i++) {
-  //   JSONVar value = myObject[keys[i]];
-  //   Serial.print(keys[i]);
-  //   Serial.print(" = ");
-  //   Serial.println(value);
-  // }
+  for (int i = 0; i < keys.length(); i++) {
+    const char* value = (const char*) myObject[keys[i]];
+    if (value == "fwd") {
+      run_motor(-250,+250);
+    } else if (value == "bck") {
+      run_motor(250,-250);
+    } else if (value == "lft") {
+      run_motor(-250,250/4);
+    } else if (value == "rht") {
+      run_motor(-250/4,250);
+    } else if (value == "stop") {
+      run_motor(0,0);
+    } else {}
+    // Serial.print(keys[i]);
+    // Serial.print(" = ");
+    // Serial.println(value);
+  }
+
 }
 
 String httpGETRequest(const char* serverName) {
@@ -211,7 +249,7 @@ String httpGETRequest(const char* serverName) {
   HTTPClient http;
 
   client.setInsecure();
-  http.begin(client, serverName);
+  http.begin(client, "https://balance-bug.5959pn4l16bde.eu-west-2.cs.amazonlightsail.com/api/pathing");
 
   int httpResponseCode = http.GET();
 
