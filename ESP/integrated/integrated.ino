@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
+#include "freertos/task.h"
 
 #define WIFI_SSID     "jamies_iphone"
 #define PASSWORD      "jamieturner2"
@@ -14,11 +15,15 @@ bool junction = false;
 unsigned int xpos = 100;
 unsigned int ypos = 10;
 unsigned int orientation = 24;
-bool line_array[3] = {0, 1, 0, 0, 1, 0};
+unsigned int line_array[6] = {0, 1, 0, 0, 1, 0};
 
 TaskHandle_t uartMotor;
 TaskHandle_t espServer;
 
+
+
+// #################################################################################################################################################
+// #################################################################################################################################################
 
 // Establish WiFi connection
 void connectToWiFi(){
@@ -38,7 +43,7 @@ void httpRequests(){
     // sending data to the rover
     String update_path = URL + "/api/update"; // need to include endpoint in again
     http.begin(client, update_path); // could need a request number at the end, not too sure
-    int httpResponsePost = http.POST("{\"xpos\": " + xpos + ",\n\"ypos\": " + ypos + ",\n\"degrees\": " + orientation + "'\n\"lines\": [" + line_array[0] + ", " + line_array[1] + ", " + line_array[2] + ", " + line_array[3] + ", " + line_array[4] + ", " + line_array[5] + "]"); // () needs the payload, a string in the format of the json data needed {"xpos": xpos, etc..}
+    int httpResponsePost = http.POST("{\"xpos\": " + String(xpos) + ",\n\"ypos\": " + String(ypos) + ",\n\"degrees\": " + String(orientation) + "'\n\"lines\": [" + String(line_array[0]) + ", " + String(line_array[1]) + ", " + String(line_array[2]) + ", " + String(line_array[3]) + ", " + String(line_array[4]) + ", " + String(line_array[5]) + "]");
     Serial.print("HTTP response code: " + String(httpResponsePost) + "\n");
     http.end();
 
@@ -54,8 +59,14 @@ void httpRequests(){
     Serial.println("connection lost");
   }
 }
+// #################################################################################################################################################
+// #################################################################################################################################################
 
+// #####################################################################################
+// START OF MOTOR FUNCTIONS
 void setup() {
+  connectToWiFi();
+
   xTaskCreatePinnedToCore(
     uart_motor,
     "UART-and-Motor",
@@ -65,7 +76,6 @@ void setup() {
     &uartMotor,
     0
   );
-
   xTaskCreatePinnedToCore(
     esp_server,
     "ESP-and-Server",
@@ -76,15 +86,86 @@ void setup() {
     1
   );
 
-  void uart_motor(void * pvParameters){
-    
+  // SET UP MOTOR OUTPUTS - for the time being here although most likely will need to go into the task functions.
+	  left_stepper.begin(2, 15);
+  	left_stepper.spin(0.1);
+  	right_stepper.begin(17, 16);
+  	right_stepper.spin(0.1);
+}
+void getDirections(){
+  if(WiFi.status() == WL_CONNECTED ) {
+    WiFiClient client;
+    HTTPClient http;
+
+    //recieving rover data
+    http.begin(client, URL + "api/getdirections"); // TEMPORARY ENDPOINT
+    int httpResponseGet = http.GET(); // dont need to pass arguments
+    String payload = http.getString(); // just text that says lft rgt etc (i assume)
+    // check the response code and if error then request resend otherwise we cant get the data for the wheels which is VERY IMPORTANT
+    Serial.print("HTTP response code: " + String(httpResponseGet) + "\n");
+    Serial.print("HTTP payload is: " + payload + "\n");
+    String command = payload.trim(); // remove any whitespace just in case of accidental error
+    http.end();
   }
-
-
-  void esp_server(void * pvParameters){
-
-  }
-
 }
 
-void loop() {}
+void run_motor(int speed_left, int speed_right) {
+  right_stepper.stop();
+  left_stepper.stop();
+  right_stepper.spin(speed_right);
+  left_stepper.spin(speed_left);
+}
+
+// #####################################################################################
+// END OF MOTOR FUNCTIONS
+
+
+
+
+
+#define BAUD_RATE 115200
+#define TX2 17
+#define RX2 16
+#define SERIAL_MODE SERIAL_8N1
+uint32_t data = 0;
+uint8_t byteNum = 0;
+
+void uart_motor(void * pvParameters){
+
+  Serial.begin(BAUD_RATE);
+  Serial2.begin(BAUD_RATE, SERIAL_MODE, RX2, TX2);
+  
+  for(;;){
+    while(Serial2.available()){
+      uint8_t byte = Serial2.read();
+      data = data | (uint32_t)byte << (8 * byteNum);    
+    }
+    delay(1);
+
+    right_stepper.loop();
+	  left_stepper.loop();
+
+	// EVENTUALLY REMOVE ALL THE SERIAL PRINT STUFF
+	if (command == "fwd") {
+		run_motor(-250,+250);
+	} else if (command == "bck") {
+		run_motor(250,-250);
+	} else if (command == "lft") {
+		run_motor(-250,250/4);
+	} else if (command == "rht") {
+		run_motor(-250/4,250);
+	} else if (command == "stop") {
+		run_motor(0,0);
+	} else {
+	}
+}
+}
+
+  void esp_server(void * pvParameters){
+    connectToWiFi();
+    for(;;){
+      httpRequests();
+    }
+  }
+void loop() {
+}
