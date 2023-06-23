@@ -105,8 +105,20 @@ void getDirections(){
     // check the response code and if error then request resend otherwise we cant get the data for the wheels which is VERY IMPORTANT
     Serial.print("HTTP response code: " + String(httpResponseGet) + "\n");
     Serial.print("HTTP payload is: " + payload + "\n");
-    String command = payload.trim(); // remove any whitespace just in case of accidental error
+    payload.trim(); // remove any whitespace just in case of accidental error
     http.end();
+    if (payload == "fwd") {
+		run_motor(-250,+250);
+	} else if (payload == "bck") {
+		run_motor(250,-250);
+	} else if (payload == "lft") {
+		run_motor(-250,250/4);
+	} else if (payload == "rht") {
+		run_motor(-250/4,250);
+	} else if (payload == "stop") {
+		run_motor(0,0);
+	} else {
+	}
   }
 }
 
@@ -147,18 +159,7 @@ void uart_motor(void * pvParameters){
 	  left_stepper.loop();
 
 	// EVENTUALLY REMOVE ALL THE SERIAL PRINT STUFF
-	if (command == "fwd") {
-		run_motor(-250,+250);
-	} else if (command == "bck") {
-		run_motor(250,-250);
-	} else if (command == "lft") {
-		run_motor(-250,250/4);
-	} else if (command == "rht") {
-		run_motor(-250/4,250);
-	} else if (command == "stop") {
-		run_motor(0,0);
-	} else {
-	}
+	
 }
 }
 
