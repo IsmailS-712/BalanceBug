@@ -11,7 +11,7 @@
 static MPU6050 imu;
 
 static double pitch, pitch_setpoint, pitch_action;
-static AutoPID pitch_controller(&pitch, &pitch_setpoint, &pitch_action, -25, 25 , 7.7, 100, 0.8);
+static AutoPID pitch_controller(&pitch, &pitch_setpoint, &pitch_action, -25, 25 , 7.7, 0, 0);
 
 static ContinuousStepper left_stepper, right_stepper;
 
@@ -36,7 +36,7 @@ void setup()
     imu.setDMPEnabled(true);
     attachInterrupt(IMU_INT_PIN, dmpDataReady, RISING);
 
-     pitch_setpoint = -4.0;
+     pitch_setpoint = -3.0;
      pitch_controller.setTimeStep(0.5);
 
     left_stepper.begin(2, 15);
@@ -52,6 +52,8 @@ void loop()
     static uint8_t dmp_fifo_buffer[64];
     static Quaternion quarternion;
     static VectorFloat gravity;
+    static realAccel aaReal;
+    static VectorFloat gravity;
     static float yaw_pitch_roll[3];
 
         left_stepper.loop();
@@ -59,13 +61,14 @@ void loop()
     
      if (imu.dmpGetCurrentFIFOPacket(dmp_fifo_buffer)) {
         imu.dmpGetQuaternion(&quarternion, dmp_fifo_buffer);
-        imu.dmpGetGravity(&gravity, &quarternion);
-        imu.dmpGetYawPitchRoll(yaw_pitch_roll, &quarternion, &gravity);
-        pitch = (yaw_pitch_roll[1] / 3.14 * 180);      
-        pitch_controller.run();
-        left_stepper.spin(-pitch_action * abs(pitch_action));
-        right_stepper.spin(pitch_action * abs(pitch_action));
-        Serial.printf("pitch = %7.2lf, pitch_action = %.1lf\n", yaw_pitch_roll[1] / 3.14 * 180, pitch_action);
+        mpu.dmpGetAccel(&aa, dmp_fifo_buffer);
+        mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+        imu.dmpGetYawPitchRoll(yaw_pitch_roll, &quarternion, &aa);
+        // pitch = (yaw_pitch_roll[1] / 3.14 * 180);      
+        // pitch_controller.run();
+        // left_stepper.spin(-pitch_action * abs(pitch_action));
+        // right_stepper.spin(pitch_action * abs(pitch_action));
+        Serial.printf("Orientation = %7.2lf, Linear Acceleration = %.1lf\n", yaw_pitch_roll[3] / 3.14 * 180, aaReal);
      }
 
 }
