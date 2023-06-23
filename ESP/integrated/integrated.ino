@@ -3,6 +3,7 @@
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include "freertos/task.h"
+#include <ContinuousStepper.h>
 
 #define WIFI_SSID     "jamies_iphone"
 #define PASSWORD      "jamieturner2"
@@ -20,7 +21,7 @@ unsigned int line_array[6] = {0, 1, 0, 0, 1, 0};
 TaskHandle_t uartMotor;
 TaskHandle_t espServer;
 
-
+static ContinuousStepper left_stepper, right_stepper;
 
 // #################################################################################################################################################
 // #################################################################################################################################################
