@@ -1,12 +1,15 @@
-# balance-bug
+# EEBalanceBug
 
-React frontend, Flask backend
+Task: design and build a balancing robot (segway) that can autonomously map and navigate a maze.
 
-To run frontend:
+Functional requirements
+The system must:
+1. Autonomously move through a maze without crossing an illuminated line
+2. Autonomously survey the layout of the maze and produce a map of the discovered layout, overlaid with the position of the robot and the shortest path through the maze
+3. Balance on two wheels
 
-cd frontend then use npm commands
-
-To run backend:
-
-run in venv with .\env\Scripts\Activate.ps1 on windows
-then run python app.py
+Non-functional requirements
+The system must be:
+1. Reliable and able to complete its task without human intervention
+2. Robustly and efficiently constructed
+3. Coded for: a. Usability b. Testability c. Maintainability d. Scalability
